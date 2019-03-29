@@ -1,0 +1,2 @@
+# CCPrivacyManager
+PrivacyAuthorization
