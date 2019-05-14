@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CCPrivacyManager" # 项目名称
-  s.version      = "0.1.0"        # 版本号
+  s.version      = "1.0.0"        # 版本号
   s.license      = "MIT"          # 开源证书
   s.summary      = "CCPrivacyManager" # 项目简介
 
@@ -14,6 +14,6 @@ Pod::Spec.new do |s|
   
   # User
   s.author             = { "houwenfu" => "houwenfu@126.com" } # 作者信息
-  s.social_media_url   = "http://www.baidu.com" # 个人主页
+  s.social_media_url   = "https://github.com/houwenfu126" # 个人主页
 
 end
