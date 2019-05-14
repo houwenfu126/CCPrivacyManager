@@ -9,6 +9,7 @@
 
 // 功能类型
 typedef NS_ENUM(NSInteger, CCPrivacyType) {
+    CCPrivacyTypeNotification,          // push通知权限
     CCPrivacyTypeCamera,                // 相机权限
     CCPrivacyTypePhotoLibrary,          // 相册权限（非拉取数据不需权限）
     CCPrivacyTypeContacts,              // 通讯录权限（非拉取数据不需权限）
@@ -45,10 +46,10 @@ typedef NS_ENUM(NSInteger, CCAuthorizationStatus) {
 + (CCAuthorizationStatus)authorizationStatusForPrivacyType:(CCPrivacyType)type;
 
 /// 请求隐私权限
-+ (void)requestAuthorizationForPrivacyType:(CCPrivacyType)type handler:(void(^)(CCAuthorizationStatus status))handler;
++ (void)requestAuthorizationForPrivacyType:(CCPrivacyType)type handler:(void(^_Nullable)(CCAuthorizationStatus status))handler;
 
 /// 请求隐私权限，如果vc不为空，权限不足则提示alert
-+ (void)requestAuthorizationForPrivacyType:(CCPrivacyType)type fromVC:(nullable UIViewController *)vc handler:(void(^)(CCAuthorizationStatus status))handler;
++ (void)requestAuthorizationForPrivacyType:(CCPrivacyType)type fromVC:(UIViewController *_Nullable)vc handler:(void(^_Nullable)(CCAuthorizationStatus status))handler;
 
 @end
 

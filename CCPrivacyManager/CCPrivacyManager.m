@@ -5,13 +5,15 @@
 
 
 #import "CCPrivacyManager.h"
-#import<AssetsLibrary/AssetsLibrary.h>
+#import <UserNotifications/UserNotifications.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 #import <Photos/Photos.h>
 #import <ContactsUI/ContactsUI.h>
 #import <EventKit/EventKit.h>
 #import <CoreLocation/CoreLocation.h>
 
 const NSString *InfoPlistKeyMap[] = {
+//    [CCPrivacyTypeNotification]             = @"",
     [CCPrivacyTypeCamera]                   = @"NSCameraUsageDescription",
     [CCPrivacyTypePhotoLibrary]             = @"NSPhotoLibraryUsageDescription",
     [CCPrivacyTypeContacts]                 = @"NSContactsUsageDescription",
@@ -34,6 +36,7 @@ const NSString *InfoPlistKeyMap[] = {
 };
 
 const NSString *PrivacyNameMap[] = {
+    [CCPrivacyTypeNotification]             = @"通知",
     [CCPrivacyTypeCamera]                   = @"相机",
     [CCPrivacyTypePhotoLibrary]             = @"照片",
     [CCPrivacyTypeContacts]                 = @"通讯录",
@@ -85,13 +88,19 @@ const NSString *PrivacyNameMap[] = {
 }
 
 + (CCAuthorizationStatus)authorizationStatusForPrivacyType:(CCPrivacyType)type {
-    NSDictionary *infoDic = [NSBundle mainBundle].infoDictionary;
-    NSString *value = infoDic[InfoPlistKeyMap[type]];
-    if (value.length == 0) {
-        return CCAuthorizationStatusNotInfoPlist;
+
+    if (type != CCPrivacyTypeNotification) {
+        NSDictionary *infoDic = [NSBundle mainBundle].infoDictionary;
+        NSString *value = infoDic[InfoPlistKeyMap[type]];
+        if (value.length == 0) {
+            return CCAuthorizationStatusNotInfoPlist;
+        }
     }
 
     switch (type) {
+        case CCPrivacyTypeNotification:
+            return [[CCPrivacyManager sharedInstance] notificationAuthorizationStatus];
+            break;
         case CCPrivacyTypeCamera:
             return [[CCPrivacyManager sharedInstance] cameraAuthorizationStatus];
             break;
@@ -123,6 +132,9 @@ const NSString *PrivacyNameMap[] = {
     [CCPrivacyManager sharedInstance].handler = handler;
     if (status == CCAuthorizationStatusNotDetermined) {
         switch (type) {
+            case CCPrivacyTypeNotification:
+                [[CCPrivacyManager sharedInstance] requestNotificationAuthorization:handler];
+                break;
             case CCPrivacyTypeCamera:
                 [[CCPrivacyManager sharedInstance] requestCamaraAuthorization:handler];
                 break;
@@ -172,6 +184,34 @@ const NSString *PrivacyNameMap[] = {
                 [alert addAction:setting];
                 [vc presentViewController:alert animated:YES completion:nil];
             }
+        }
+    }
+}
+
+// 查询通知权限
+- (NSInteger)notificationAuthorizationStatus {
+    NSLog(@"CCPrivacyManager：通知权限异步回调，请调用+ (void)requestAuthorizationForPrivacyType:(CCPrivacyType)type handler:(void(^_Nullable)(CCAuthorizationStatus status))handler");
+    return 0;
+}
+
+// 请求获取通知权限
+- (void)requestNotificationAuthorization:(void(^)(NSInteger status))handler {
+    if (@available(iOS 10 , *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
+                handler(3);
+            } else if (settings.authorizationStatus == UNAuthorizationStatusNotDetermined) {
+                handler(0);
+            } else {
+                handler(2);
+            }
+        }];
+    } else if (@available(iOS 8 , *)) {
+        UIUserNotificationSettings * settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        if (settings.types == UIUserNotificationTypeNone) {
+            handler(2);
+        } else {
+            handler(3);
         }
     }
 }
